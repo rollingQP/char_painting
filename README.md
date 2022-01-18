@@ -36,7 +36,9 @@
    
 
 
-5. 为生成的视频添加原视频音轨并且压制为mp4需要预先安装好ffmpeg，如果没有安装ffmpeg，请注释掉或者删掉最后一行
+5. 为生成的视频添加原视频音轨并且压制为mp4需要预先安装好ffmpeg，如果没有安装ffmpeg，请注释掉或者删掉
    ```
    write_audio(video_path)
    ```
+
+6. 在Release中，2.2版起附带来自[gyan.dev](https://www.gyan.dev/ffmpeg/builds/)的Windows版FFmpeg。Windows用户也可自行下载FFmpeg，放置在与本程序相同的目录内。Linux和macOS仍然需要用户自行安装FFmpeg，具体方法请自行上网查找。
