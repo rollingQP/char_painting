@@ -1,6 +1,6 @@
 # -*- coding=utf-8 -*-
 # =========================
-# 视频转字符画含音频version-2.2
+# 视频转字符画含音频version-2.3
 # 参考1：https://blog.csdn.net/mp624183768/article/details/81161260
 # 参考2：https://blog.csdn.net/qq_42820064/article/details/90958577
 # 参考3：https://blog.csdn.net/zj360202/article/details/79026891
@@ -48,7 +48,7 @@ def video_to_pic(vp, save_pic_path):
         r, frame = vp.read()
         if not os.path.exists(save_pic_path):
             os.mkdir(save_pic_path)
-        os.chdir(save_pic_path)
+        #os.chdir(save_pic_path)
     else:
         r = False
     while r:
@@ -56,7 +56,7 @@ def video_to_pic(vp, save_pic_path):
         cv2.imwrite(save_pic_path + '/' + str(number) + '.jpg', frame)
         r, frame = vp.read()
     print('由视频一共生成了{}张图片！'.format(number))
-    os.chdir(save_pic_path)
+    #os.chdir(save_pic_path)
     # os.chdir("../../../Downloads")
     return number
 
@@ -64,7 +64,7 @@ def video_to_pic(vp, save_pic_path):
 def img_to_char(image_path, save_charpic_path, raw_width, raw_height, task):
     width = int(raw_width / 6)  # 默认 /6
     height = int(raw_height / 10)  # 默认 /15
-    os.chdir(sys.path[0])
+    os.chdir(os.path.dirname(os.path.realpath(sys.argv[0])))
     im = Image.open(image_path).convert('RGB')  # 必须以RGB模式打开
     im = im.resize((width, height), Image.NEAREST)
 
@@ -188,7 +188,7 @@ def jpg_to_video(char_image_path, FPS):
     video_fourcc = VideoWriter_fourcc(*"MP42")  # 设置视频编码器,这里使用使用MP42编码器,可以生成更小的视频文件
     char_img_path_list = [char_image_path + r'/{}.jpg'.format(i) for i in range(1, number + 1)]  # 生成目标字符图片文件的路径列表
     char_img_test = Image.open(char_img_path_list[1]).size  # 获取图片的分辨率
-    os.chdir(sys.path[0])
+    os.chdir(os.path.dirname(os.path.realpath(sys.argv[0])))
     if not os.path.exists('video'):
         os.mkdir('video')
     video_writter = VideoWriter('video/new_char_video.avi', video_fourcc, FPS, char_img_test)
@@ -211,39 +211,28 @@ def jpg_to_video(char_image_path, FPS):
 def write_audio(video_path):
     if sys.platform.startswith('win'):  # 判断平台，如果是Windows，使用同目录下的ffmpeg.exe
         # 加入音频
-        cmd = sys.path[
-                  0] + '\\ffmpeg.exe -i ' + sys.path[
-                  0] + '/video/new_char_video.avi' + ' -i ' + video_path + ' -c copy -map 0 -map 1:1 -y -shortest ' + \
-              sys.path[
-                  0] + '/video/videoWithAudio.avi' + ' -y'
+        cmd = os.path.dirname(os.path.realpath(sys.argv[0])) + '\\ffmpeg.exe -i ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/new_char_video.avi' + ' -i ' + video_path + ' -c copy -map 0 -map 1:1 -y -shortest ' + \
+              os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/videoWithAudio.avi' + ' -y'
         os.system(cmd)
         # 压制成H.264 mp4格式
-        cmd2 = sys.path[
-                   0] + '\\ffmpeg.exe -i ' + sys.path[0] + '/video/videoWithAudio.avi' + ' -c:v libx264 -strict -2 ' + \
-               sys.path[
-                   0] + '/video/finalOutput_VideoWithAudio.mp4' + ' -y'
+        cmd2 = os.path.dirname(os.path.realpath(sys.argv[0])) + '\\ffmpeg.exe -i ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/videoWithAudio.avi' + ' -c:v libx264 -strict -2 ' + \
+               os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/finalOutput_VideoWithAudio.mp4' + ' -y'
     elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
         if os.system('ffmpeg') == 32512:
             print('未检测到FFmpeg，请先安装！')
             print('无法写入音频并压制成mp4，已输出无音频版字符动画视频。')
             return -1
         # 加入音频
-        cmd = 'ffmpeg -i ' + sys.path[
-            0] + '/video/new_char_video.avi' + ' -i ' + video_path + ' -c copy -map 0 -map 1:1 -y -shortest ' + \
-              sys.path[
-                  0] + '/video/videoWithAudio.avi' + ' -y'
+        cmd = 'ffmpeg -i ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/new_char_video.avi' + ' -i ' + video_path + ' -c copy -map 0 -map 1:1 -y -shortest ' + \
+              os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/videoWithAudio.avi' + ' -y'
         # 压制成H.264 mp4格式
-        cmd2 = 'ffmpeg -i ' + sys.path[0] + '/video/videoWithAudio.avi' + ' -c:v libx264 -strict -2 ' + sys.path[
-            0] + '/video/finalOutput_VideoWithAudio.mp4' + ' -y'
+        cmd2 = 'ffmpeg -i ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/videoWithAudio.avi' + ' -c:v libx264 -strict -2 ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/finalOutput_VideoWithAudio.mp4' + ' -y'
     else:
         print('未识别的平台，可能无法使用FFmpeg！')
-        cmd = 'ffmpeg -i ' + sys.path[
-            0] + '/video/new_char_video.avi' + ' -i ' + video_path + ' -c copy -map 0 -map 1:1 -y -shortest ' + \
-              sys.path[
-                  0] + '/video/videoWithAudio.avi' + ' -y'
+        cmd = 'ffmpeg -i ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/new_char_video.avi' + ' -i ' + video_path + ' -c copy -map 0 -map 1:1 -y -shortest ' + \
+              os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/videoWithAudio.avi' + ' -y'
         # 压制成H.264 mp4格式
-        cmd2 = 'ffmpeg -i ' + sys.path[0] + '/video/videoWithAudio.avi' + ' -c:v libx264 -strict -2 ' + sys.path[
-            0] + '/video/finalOutput_VideoWithAudio.mp4' + ' -y'
+        cmd2 = 'ffmpeg -i ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/videoWithAudio.avi' + ' -c:v libx264 -strict -2 ' + os.path.dirname(os.path.realpath(sys.argv[0])) + '/video/finalOutput_VideoWithAudio.mp4' + ' -y'
     os.system(cmd)
     os.system(cmd2)
     return 0
@@ -266,32 +255,37 @@ def input_process(default_video_path):
             video_path = sys.argv[1]
         elif len(sys.argv) == 1 and not os.path.exists(video_path):
             video_path = input('请输入待处理视频的完整路径：')
-            # video_path = sys.path[0] + '/' + video_path
+            # video_path = os.path.dirname(os.path.realpath(sys.argv[0])) + '/' + video_path
     return video_path
 
 
-# save_pic_path = sys.path[0] + '/cache_pic'  # 别动
-# save_charpic_path = sys.path[0] + '/cache_char'  # 别动
+# save_pic_path = os.path.dirname(os.path.realpath(sys.argv[0])) + '/cache_pic'  # 别动
+# save_charpic_path = os.path.dirname(os.path.realpath(sys.argv[0])) + '/cache_char'  # 别动
 
 if __name__ == '__main__':
     # 各种参数
     # global save_charpic_path, save_pic_path
+    multiprocessing.freeze_support()    #pyinstaller打包时要用到，直接使用python运行本文件请注释掉
     tempdir = tempfile.mkdtemp()
-    save_pic_path = tempdir + '/cache_pic'  # 别动
-    save_charpic_path = tempdir + '/cache_char'  # 别动
-    video_path = sys.path[0] + '/input.mp4'  # 把input.mp4改成你的视频名字，注意前面的斜杠要保留
-    processes_number = 8  # 使用多少个进程同时处理图片，通常不超过CPU线程数，可以自行设置
-    video_path = input_process(video_path)
+    try:
+        save_pic_path = tempdir + '/cache_pic'  # 别动
+        save_charpic_path = tempdir + '/cache_char'  # 别动
+        video_path = os.path.dirname(os.path.realpath(sys.argv[0])) + '/input.mp4'  # 把input.mp4改成你的视频名字，注意前面的斜杠要保留
+        processes_number = os.cpu_count() - 2  # 使用多少个进程同时处理图片，通常不超过CPU线程数，可以自行设置，例如 processes_number = 8
+        video_path = input_process(video_path)
 
-    # 处理
-    vp = cv2.VideoCapture(video_path)
-    number = video_to_pic(vp, save_pic_path)
-    FPS = vp.get(cv2.CAP_PROP_FPS)
-    threads = star_to_char_multi_process(number, save_pic_path, save_charpic_path, processes_number)
-    for thread in threads:
-        thread.join()
-    vp.release()
-    jpg_to_video(save_charpic_path, FPS)
-    write_audio(video_path)  # 把原视频的音频复制到新视频中。需要安装ffmpeg，否则报错。没有ffmpeg请注释掉这行代码。
-    delete(tempdir)
-    input('任意键退出...')
+        # 处理
+        vp = cv2.VideoCapture(video_path)
+        number = video_to_pic(vp, save_pic_path)
+        FPS = vp.get(cv2.CAP_PROP_FPS)
+        threads = star_to_char_multi_process(number, save_pic_path, save_charpic_path, processes_number)
+        for thread in threads:
+            thread.join()
+        vp.release()
+        jpg_to_video(save_charpic_path, FPS)
+        write_audio(video_path)  # 把原视频的音频复制到新视频中。需要安装ffmpeg，否则报错。没有ffmpeg请注释掉这行代码。
+        delete(tempdir)
+        input('运行完毕，任意键退出...')
+    except KeyboardInterrupt:
+        delete(tempdir)
+        input('程序中止，任意键退出...')
